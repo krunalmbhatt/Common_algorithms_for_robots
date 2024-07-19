@@ -1,0 +1,11 @@
+<launch>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find all_algo)/maps/map.yaml" />
+  <node name="dijkstra" pkg="all_algo" type="dijkstra" output="screen" />
+  <node name="astar" pkg="all_algo" type="astar" output="screen" />
+  <node name="rrt" pkg="all_algo" type="rrt" output="screen" />
+  <node name="rrt_star" pkg="all_algo" type="rrt_star" output="screen" />
+  <node name="prm" pkg="all_algo" type="prm" output="screen" />
+  <node name="bfs" pkg="all_algo" type="bfs" output="screen" />
+  <node name="dfs" pkg="all_algo" type="dfs" output="screen" />
+  <node name="collision_check" pkg="all_algo" type="collision_check" output="screen" />
+</launch>

@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="all_algo" type="astar" name="a_star_node" output="screen"/>
+  <param name="map_file" value="$(find all_algo)/maps/testmap.yaml"/>
+</launch>
