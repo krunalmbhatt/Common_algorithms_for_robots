@@ -1,0 +1,171 @@
+\documentclass[a4 paper]{article}
+
+% Set target color model to RGB
+\usepackage[inner=1.5cm,outer=1.5cm,top=1.5cm,bottom=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage[rgb]{xcolor}
+\usepackage{amsgen,amsmath,amstext,amsbsy,amsopn,amssymb}
+\usepackage[colorlinks=true, urlcolor=blue,  linkcolor=blue, citecolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{dsfont}
+\usepackage{algorithm}
+\usepackage[english]{babel}
+\usepackage[noend]{algpseudocode}
+\usepackage{multirow}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+
+\newcommand{\project}[4]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf RBE550:~Motion Planning \hfill} }
+       \vspace{6mm}
+       \hbox to 6.28in { {\Large \hfill \textbf{#1} #2  \hfill} }
+       \vspace{6mm}
+       \hbox to 6.28in { {\it Student 1: #3 \hfill } }
+       \hbox to 6.28in { {\it Student 2: #4 \hfill }}
+      \vspace{2mm}}
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+\title{Motion Planning}
+
+\begin{document}
+\project{Project 2}{}{Krunal Bhatt}{Smit Shah}
+
+$\mathbf{Theoretical Questions:}$
+%%-------------------------------- QUESTION 1 -------------------------------%%
+\begin{enumerate}
+    \item Write two key-differences between the Bug 1 and Bug 2 algorithm. \\
+    \textit{$Sol^n$:}
+        \begin{description}[font=$\bullet$\scshape\bfseries]
+            \item Bug 1 is an exhaustive search algorithm meaning that it looks at all the choices before choosing one, while the Bug 2 algorithm is greedy meaning that it chooses the one that comes first while searching.
+            \item Bug 1 circumnavigates the obstacle and remembers the nearest point to the goal and then circles back to it, while Bug 2 has a line "M" which the bug follows and reaches the goal efficiently.
+            \item Bug 2 beats Bug 1, in not all but many cases. 
+        \end{description}
+
+        %%------------------QUESTION 2 -----------------------%%
+    \item A fundamental part of A* search is the use of a heuristic function to avoid exploring
+unnecessary edges. To guarantee that A* will find the optimal solution, the heuristic function must be admissible. A heuristic h is admissible if 
+\begin{equation*}
+h(n) \leq T(n)
+\end{equation*}
+Where, T is the true cost from n to the goal, and n is a node in the graph. In other words, an admissible heuristic never overestimates the true cost from the current state to the goal. A stronger property is consistency. A heuristic is consistent if for all consecutive states $n$; $n_0$
+    \begin{equation*}
+        h(n) \leq T(n;n_0)+h(n_0)
+    \end{equation*}
+where T is the true cost from node n to its adjacent node $n_0$. \\
+Answer the following: \\
+(a) (5 points) Imagine that you are in the grid world and your agent can move up, down, left, right, and diagonally, and you are trying to reach the goal cell $f = (g_x;g_y)$. Define an admissible heuristic function $h_a$ and a non-admissible heuristic $h_b$ in terms of $x; y; g_x; g_y$. Explain why each heuristic is admissible/non-admissible.\\
+(b) (10 points) Let $h_1$ and $h_2$ be consistent heuristics. Define a new heuristic $h(n)=max(h_1(n); h_2(n))$. Prove that h is consistent. \\
+    \textit{$Sol^n$:}
+        \begin{description}[font=$\bullet$\scshape\bfseries]
+            \item For question (a), we are given a grid world and our agent can move up, down, left, right, and diagonally. We are trying to reach the goal cell \textit{f} = ($g_x$,$g_y$). In order to do that, we define an admissible heuristic $h_a$ such that: 
+            \begin{equation*}
+                h_a(x,y,g_x,g_y) = |x - g_x| + |y-g_y|
+            \end{equation*}
+            This heuristic is admissible because it never overestimates the true cost from the current state to the goal. The Manhattan distance is a lower bound on the actual cost because it only considers the horizontal and vertical movements, not diagonal movements.
+            \begin{equation*}
+                h_b(x,y,g_x,g_y) = (x - g_x)^2 + (y-g_y)^2
+            \end{equation*}
+            Here,the above function, Euclidean Distance squared will overestimate the heuristic as the square of the distance will be much more resulting into the overestimation.
+
+            \item For question (b), we need to prove that the new heuristic h(n) = max($h_1$(n), $h_2$(n)) is consistent, we need to show that for all consecutive states n and $n_0$, the following inequality holds:
+            \begin{equation*}
+                h(n) \leq T(n, n_0) + h(n_0)
+            \end{equation*}
+            Taking max on both sides of the inequality, 
+            we get,
+            \begin{equation*}
+                max(h_1(n), h_2(n)) \leq max(T(n, n_0) + h_1(n_0), T(n, n_0) + h_2(n_0))
+            \end{equation*}
+            Since the maximum of two values is always less than or equal to the sum of those values, we can simplify the inequality as follows:
+            \begin{equation*}
+                max(h_1(n), h_2(n)) \leq T(n, n_0) + max(h_1(n_0), h_2(n_0))
+            \end{equation*}
+            This shows that $h(n) = max(h_1(n), h_2(n))$ satisfies the consistency condition for all consecutive states n and $n_0$. Therefore, h(n) is consistent.
+        \end{description}
+
+%%------------------------QUESTION 3-----------------------%%
+    \item Suppose you are planning for a point robot in a 2D workspace with polygonal obstacles. The start and goal locations of the robot are given. The visibility graph is defined as follows: \\
+    • The start, goal, and all vertices of the polygonal obstacles compose the vertices of the graph.\\
+    • An edge exists between two vertices of the graph if the straight line segment connecting the vertices does not intersect any obstacle. The boundaries of the obstacles count as edges.
+    
+    Answer the following:
+    
+    (a) (10 points) Provide an upper bound of the time it takes to construct the visibility graph in big-O notation. Give your answer in terms of n, the total number of vertices of the obstacles. Provide a short algorithm in pseudocode to explain your answer. Assume that computing the intersection of two line segments can be done in constant time.
+    
+    (b) (10 points) Can you use the visibility graph to plan a path from the start to the goal? If so, explain how and provide or name an algorithm that could be used. Provide an upper bound of the run-time of this algorithm in big-O notation in terms of n (the number of vertices in the visibility graph) and m (the number of edges of the visibility graph). If not, explain why.
+
+    \textit{$Sol^n$:}
+        
+        \begin{description}[font=$\bullet$\scshape\bfseries]
+            \item  For the answer (a), To construct the visibility graph in a 2D workspace with polygonal obstacles, we need to consider each vertex of the obstacles and check for visibility with other vertices. The upper-bound time complexity of constructing the visibility graph can be expressed in big-O notation as O($n^3$), where n is the total number of vertices of the obstacles.\
+            
+            Here is a short algorithm in pseudo-code to explain the construction of the visibility graph: \\
+            {\centering 
+\begin{minipage}{\linewidth}
+\begin{algorithm}[H]
+\caption{Construction of Visibility Graph}
+    Initialize an Empty Graph G. \\
+    Add start and goal location as vertices to G.
+    \begin{algorithmic}
+        \item \textbf{for} each vertex v in polygon obstacle \textbf{do} \\
+            \ \  Add v as a vertex to G
+            \For {each other vertex u in polygonal obstacle}
+                \If {Line segment connecting v and u intersect any obstacle}
+                    \State Don't add an edge and return to the start of loop
+                \Else 
+                    \State Add an edge connecting v and u in G
+                \EndIf
+                
+            \Return Constructed graph G. 
+            \EndFor
+    \end{algorithmic}
+\end{algorithm}
+\end{minipage}
+}
+
+           \item For answer (b), Yes, the visibility graph can be used to plan a path from the start to the goal. The visibility graph is a graph representation of the obstacles in a given environment, where the vertices represent the points of visibility and the edges represent the unobstructed line of sight between the points.
+
+           
+           One algorithm that can be used to find a path in a visibility graph is Dijkstra's algorithm. Dijkstra's algorithm is a popular graph search algorithm that finds the shortest path between two vertices in a graph. It can be applied to the visibility graph by treating the vertices as the points of visibility and the edges as the connections between them. The algorithm is as follows: \\
+           {\centering 
+\begin{minipage}{\linewidth}
+\begin{algorithm}[H]
+\caption{Dijkstra's Algorithm}
+    \begin{algorithmic}
+        \item \textbf{for each} vertex v in Graph G
+        \textbf{do} \\
+            \ \  dist[v]:= infinite \\
+            \ \ previous := undefined \\
+            dist[source] := 0 \\
+            Q := set of all nodes in the graph
+            \While {Q is not empty}
+                \State u := node in Q with smallest dist[]
+                \State remove u form Q
+                \For{each neighbor v of u}
+                    \State alt:= dist[u] + dist$\_$between(u,v)
+                        \If{alt $<$ dist[v]}
+                            \State dist[v] := alt
+                            \State previous[v] := u
+                        \EndIf
+                \EndFor
+            \Return previous[]
+            \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+\end{minipage}
+}
+The runtime of Dijkstra's algorithm in terms of the number of vertices (n) and edges (m) can be expressed as O((n + m) log n). This is because the algorithm iterates through all the vertices and edges, and the priority queue used in the algorithm has a logarithmic time complexity for the insertion and extraction of elements. 
+        \end{description}
+
+\end{enumerate}
+
+\end{document}
